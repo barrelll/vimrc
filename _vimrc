@@ -1,8 +1,13 @@
 " Init global variables -------------------------------------- {{{
+execute pathogen#infect()
+"^^^use pathogen
 syntax on			" Turn on syntax so filetype detection will work properly
 filetype plugin indent on	" Turn on filetype detection
+color sea
+"^^^ set color scheme for vim
 let mapleader=","		" Set up my map leader for <leader> variable thing
 let maplocalleader="." 		" Set up my local map leader variable thing
+let g:quickfix_is_open = 1	" Since we auto load the quickfix window this will be set to one
 
 set number 			" Show side/row numbers
 set numberwidth=1		" Set width of the side numbers area to 10 columns
@@ -15,20 +20,31 @@ endif
 
 " Function definitions for vimscripting! --------------------------------------- {{{
 	" Find out wheter the line we're on is commented out or not
-	function! IsItCommentedVimS()
-		return ( expand("<cWORD>") ==? '"' )
-	endfunction
+function! IsItCommentedVimS()
+	return ( expand("<cWORD>") ==? '"' )
+endfunction
 
-	" Comment out the line if it's not commented else we uncomment
-	" it, Super simple stuff!
-	function! CommentOutVimS() " We'll have differnt calls for different filetypes
-		:execute "normal! I\<esc>\<right>"
-		if IsItCommentedVimS()
-			:execute "normal! I\<esc>\<right>x\<esc>x"
-		else
-			:execute "normal! I\"\<space>\<esc>"
-		endif
-	endfunction
+" Comment out the line if it's not commented else we uncomment
+" it, Super simple stuff!
+function! CommentOutVimS() " We'll have differnt calls for different filetypes
+	:execute "normal! I\<esc>\<right>"
+	if IsItCommentedVimS()
+		:execute "normal! I\<esc>\<right>x\<esc>x"
+	else
+		:execute "normal! I\"\<space>\<esc>"
+	endif
+endfunction
+
+"Open / Closes the quickfix window for us, mapped to <leader>q
+function! QuickFixToggle()
+	if g:quickfix_is_open
+		cclose
+		let g:quickfix_is_open = 0
+	else
+		execute "normal! :vertical topleft copen 99\<cr>:wincmd l\<cr>"
+		let g:quickfix_is_open = 1
+	endif
+endfunction
 " }}}
 
 " Mapping goes here --------------------------------------- {{{
@@ -46,22 +62,12 @@ nnoremap <leader>sv	:source $MYVIMRC<cr>
 nnoremap <leader>lb	:execute "rightbelow split " . bufname("#")<cr>
 " ^^^Shortcut to open last buffer in horizontal split on bottom screen
 " nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel " remap ," to encase currently hovered over word by the cursor with quotations
-if has("win32")
-	" cnoremap <localleader>g :silent execute ":grep! /n /s " . shellescape(expand("<cWORD>")) . " *." . expand("%:e")<cr><cr>:copen<cr>
-	" ^^^ long one here, use findstr if we're in windows shellescape and
-	" expand the word under the cursor, the /n shows the numbers inside
-	" the file we found the strings in, the /s is for recursion, since no
-	" file directory is specified we search from the current directory.
-	" expand the string "%:e" which should find the current file extension 
-	" so this should work in any programming language where all the file
-	" extensions match, then we open the quickfix window! 
-	" in the future, make this grep the word under the cursor in all
-	" project files, but no other file
-endif
 nnoremap <C-.> :wincmd l<cr>
 "^^^ shortcut to jump right a window buffer!
 nnoremap <C-,> :wincmd h<cr>
 "^^^ shortcut to jump left a window buffer!
+nnoremap <leader>q :call QuickFixToggle()<cr>
+"^^^ open/close the quickfix window for us
 " }}}
 
 " Auto load for all files goes here  --------------------------------------- {{{
