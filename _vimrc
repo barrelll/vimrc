@@ -3,12 +3,13 @@ execute pathogen#infect()
 "^^^use pathogen
 syntax on			" Turn on syntax so filetype detection will work properly
 filetype plugin indent on	" Turn on filetype detection
-color sea
+" color sea
+" color darkBlue
+color darktango
 "^^^ set color scheme for vim
 let mapleader=","		" Set up my map leader for <leader> variable thing
 let maplocalleader="." 		" Set up my local map leader variable thing
 let g:quickfix_is_open = 1	" Since we auto load the quickfix window this will be set to one
-
 set number 			" Show side/row numbers
 set numberwidth=1		" Set width of the side numbers area to 10 columns
 set backspace=2			" make backspace work like most other apps
@@ -45,6 +46,20 @@ function! QuickFixToggle()
 		let g:quickfix_is_open = 1
 	endif
 endfunction
+
+" Function that allows viewing command line display last time it was seen.
+" Note: Will only work on terminals that allow saving/restoring the display.
+function! ShowTerm()
+" This will invoke the command shell and call the read function.
+" Will exit when a key is pressed.  This is specific to bash and
+" and may have to be changed if using a different shell.
+	silent !read -sN 1
+	redraw!
+endfunction
+
+" Maps [= sequence to view command line display last
+" time it was seen.
+map [= :call ShowTerm()<CR>
 " }}}
 
 " Mapping goes here --------------------------------------- {{{
@@ -98,6 +113,17 @@ augroup filetype_vim
 	" place the cursor at the start of the line, and comment out said line
 	" co for comment out
 	set foldlevelstart=0 " default is -1
+augroup END
+
+augroup filetype_rust
+	" For file type rust specific commands
+	" prevent anything from being defined twice in the same group with au!
+	" same as autocmd!
+	: au!
+	set makeprg=cargo
+	inoremap { {}
+	inoremap < <>
+	inoremap ( ()
 augroup END
 " }}}
 
