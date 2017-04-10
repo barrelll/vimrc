@@ -42,7 +42,11 @@ function! QuickFixToggle()
 		cclose
 		let g:quickfix_is_open = 0
 	else
-		execute "normal! :vertical topleft copen 99\<cr>:wincmd l\<cr>"
+		if has('unix')
+			execute "normal! :vertical copen 40\<cr>:wincmd h\<cr>"
+		else
+			execute "normal! :vertical topleft copen 99\<cr>:wincmd l\<cr>"
+		endif
 		let g:quickfix_is_open = 1
 	endif
 endfunction
@@ -77,16 +81,20 @@ nnoremap <leader>sv	:source $MYVIMRC<cr>
 nnoremap <leader>lb	:execute "rightbelow split " . bufname("#")<cr>
 " ^^^Shortcut to open last buffer in horizontal split on bottom screen
 " nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel " remap ," to encase currently hovered over word by the cursor with quotations
-nnoremap <C-.> :wincmd l<cr>
+nnoremap <C-right> :wincmd l<cr>
 "^^^ shortcut to jump right a window buffer!
-nnoremap <C-,> :wincmd h<cr>
+nnoremap <C-left> :wincmd h<cr>
 "^^^ shortcut to jump left a window buffer!
 nnoremap <leader>q :call QuickFixToggle()<cr>
 "^^^ open/close the quickfix window for us
 " }}}
 
 " Auto load for all files goes here  --------------------------------------- {{{
-autocmd VimEnter * execute "normal! :vertical topleft copen 99\<cr>:wincmd l\<cr>"
+if has('unix')
+	autocmd VimEnter * execute "normal! :vertical copen 40\<cr>:wincmd h\<cr>"
+else
+	autocmd VimEnter * execute "normal! :vertical topleft copen 99\<cr>:wincmd l\<cr>"
+endif
 " }}}
 
 " Grouping goes here --------------------------------------- {{{
@@ -120,10 +128,10 @@ augroup filetype_rust
 	" prevent anything from being defined twice in the same group with au!
 	" same as autocmd!
 	: au!
-	set makeprg=cargo
-	inoremap { {}
-	inoremap < <>
-	inoremap ( ()
+	autocmd FileType rust set makeprg=cargo
+	autocmd FileType rust inoremap { {}
+	autocmd FileType rust inoremap < <>
+	autocmd FileType rust inoremap ( ()
 augroup END
 " }}}
 
